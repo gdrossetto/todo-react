@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./App.scss";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import TodoItem from "./components/todo-item/todo-item";
+import TodoList from "./components/todo-list/todo-list";
+import NewTodo from "./components/new-todo.js/new-todo";
 
 const App = (props) => {
   const [items, setItems] = useState([
@@ -39,74 +42,23 @@ const App = (props) => {
     }
   }
 
-  function handleDrag(result){
-    
-    if(!result.destination)
-      return;
-    
+  function handleDrag(result) {
+    if (!result.destination) return;
+
     let auxArray = Array.from(items);
     const [reorderedItem] = auxArray.splice(result.source.index, 1);
-    auxArray.splice(result.destination.index, 0 , reorderedItem)
-    
+    auxArray.splice(result.destination.index, 0, reorderedItem);
+
     setItems(auxArray);
   }
 
   return (
     <div className="todo-bg">
       <div className="todo-container">
-        <h2>To-do List</h2>
-        <div className="mb-3">
-          <label htmlFor="exampleFormControlInput1" className="form-label">
-            Add todo
-          </label>
-          <div className="d-flex flex-row align-items-center">
-            <input
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              type="text"
-              className="form-control"
-              id="newTodo"
-            />
-            <button
-              type="button"
-              onClick={() => addTodo(newTodo)}
-              className="btn btn-primary"
-            >
-              +
-            </button>
-          </div>
-        </div>
+        <h1 className="mb-4">To-do List</h1>
+        <NewTodo onType={setNewTodo} addTodo={addTodo} todoText={newTodo} />
         <DragDropContext onDragEnd={handleDrag}>
-          <Droppable droppableId="todos">
-            {(provided) => (
-              <ol
-                className="todo-list"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                {items.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
-                    {(provided) => (
-                      <label {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-                        <input
-                          type="checkbox"
-                          defaultChecked={item.done}
-                          onChange={(e) =>
-                            alteraStatusTodo(item.id, e.target.checked)
-                          }
-                        />
-                        <span className={item.done ? "done" : ""}>
-                          {item.text}
-                        </span>
-                        <i className="fa fa-sort ms-2" aria-hidden="true"></i>
-                      </label>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </ol>
-            )}
-          </Droppable>
+          <TodoList items={items} alteraStatus={alteraStatusTodo} />
         </DragDropContext>
       </div>
     </div>
